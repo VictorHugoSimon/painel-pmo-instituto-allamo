@@ -1,0 +1,11 @@
+{
+  "name": "allamo-pmo",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler pages dev public",
+    "deploy": "wrangler pages deploy public",
+    "db:init": "wrangler d1 execute allamo-pmo --file=./schema.sql",
+    "db:seed": "wrangler d1 execute allamo-pmo --file=./seed.sql"
+  },
+  "devDependencies": { "wrangler": "^3.0.0" }
+}
