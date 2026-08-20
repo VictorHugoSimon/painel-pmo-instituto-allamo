@@ -1,0 +1,52 @@
+name: Work Management CI
+
+on:
+  push:
+    branches:
+      - feature/work-management-fase1
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Work Management
+        run: npm run build:work
+
+      - name: Check source syntax
+        run: |
+          node --check src/work-management-api.js
+          node --check src/work-management-ui.js
+          node --check scripts/build-work-management.mjs
+          node --check test/work-management-smoke.mjs
+
+      - name: Check generated Worker syntax
+        run: node --check public/_worker.js
+
+      - name: Verify injection markers
+        run: |
+          grep -q "BEGIN ALLAMO WORK MANAGEMENT" public/_worker.js
+          grep -q "BEGIN ALLAMO WORK MANAGEMENT UI" public/index.html
+
+      - name: Verify contract names
+        run: |
+          grep -q "CREATE TABLE IF NOT EXISTS issue_checklist" migration-work-management-fase1.sql
+          grep -q "CREATE TABLE IF NOT EXISTS work_events" migration-work-management-fase1.sql
+          grep -q "source_issue_id" migration-work-management-fase1.sql
+          grep -q "target_issue_id" migration-work-management-fase1.sql
+          grep -q "issue_checklist" src/work-management-api.js
+          grep -q "work_events" src/work-management-api.js
