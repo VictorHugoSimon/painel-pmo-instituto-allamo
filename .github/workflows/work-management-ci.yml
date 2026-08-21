@@ -26,13 +26,19 @@ jobs:
       - name: Build Work Management
         run: npm run build:work
 
-      - name: Check source syntax
+      - name: Check standalone source syntax
         run: |
-          node --check src/work-management-api.js
           node --check src/work-management-ui.js
           node --check scripts/build-work-management.mjs
           node --check scripts/migrate-work-management.mjs
           node --check test/work-management-smoke.mjs
+
+      - name: Check API fragment in async context
+        run: |
+          printf 'async function __wm(){\n' > /tmp/wm-api-check.js
+          cat src/work-management-api.js >> /tmp/wm-api-check.js
+          printf '\n}\n' >> /tmp/wm-api-check.js
+          node --check /tmp/wm-api-check.js
 
       - name: Check generated Worker syntax
         run: node --check public/_worker.js
